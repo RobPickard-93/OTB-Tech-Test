@@ -1,9 +1,9 @@
 ﻿namespace HolidaySearch.Models
 {
-    public class HolidaySearchResult
+    public class Result<TResponse>
     {
         public bool IsSuccessful { get; set; }
         public string Message { get; set; } = string.Empty;
-        public IEnumerable<HolidaySearchResponse> SearchResults { get; set; } = [];
+        public IEnumerable<TResponse> SearchResults { get; set; } = [];
     }
 }

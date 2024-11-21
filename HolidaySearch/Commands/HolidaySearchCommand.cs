@@ -1,55 +1,63 @@
-﻿using HolidaySearch.Interfaces;
+﻿using HolidaySearch.Interfaces.Commands;
 using HolidaySearch.Models;
+using HolidaySearch.Models.Requests;
+using HolidaySearch.Models.Response;
 
 namespace HolidaySearch.Commands
 {
     public class HolidaySearchCommand : IHolidaySearchCommand
     {
-        private readonly IFindFlightsCommand _findFlightsCommand;
-        private readonly IFindHotelsCommand _findHotelsCommand;
+        private readonly IFlightSearchCommand _findFlightsCommand;
+        private readonly IHotelSearchCommand _findHotelsCommand;
 
-        public HolidaySearchCommand(IFindHotelsCommand findHotelsCommand, IFindFlightsCommand findFlightsCommand)
+        public HolidaySearchCommand(IHotelSearchCommand findHotelsCommand, IFlightSearchCommand findFlightsCommand)
         {
             _findHotelsCommand = findHotelsCommand;
             _findFlightsCommand = findFlightsCommand;
         }
 
-        public async Task<HolidaySearchResult> Execute(HolidaySearchRequest request)
+        public async Task<Result<HolidaySearchResponse>> Execute(HolidaySearchRequest request)
         {
-            var result = new HolidaySearchResult();
+            var result = new Result<HolidaySearchResponse>();
 
-            var matchingFlights = await _findFlightsCommand.Execute(
-                request.DepartingFrom, 
-                request.TravellingTo, 
-                request.DepartureDate
+            var flightResult = await _findFlightsCommand.Execute(
+                new FlightSearchRequest
+                {
+                    DepartureDate = request.DepartureDate,
+                    To = request.TravellingTo,
+                    From = request.DepartingFrom
+                }
             );
 
-            if (!matchingFlights?.Any() ?? false) 
+            if (!flightResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
-                result.Message = Constants.NoFlightsFoundError;
+                result.Message = flightResult.Message;
                 return result;
             }
 
-            var matchingHotels = await _findHotelsCommand.Execute(
-                matchingFlights!.Select(f => f.To),
-                request.DepartureDate,
-                request.Duration
+            var hotelResult = await _findHotelsCommand.Execute(
+                new HotelSearchRequest
+                {
+                    LocalAirports = flightResult!.SearchResults.Select(f => f.To),
+                    ArrivalDate = request.DepartureDate,
+                    Duration = request.Duration
+                }
             );
 
-            if (!matchingHotels?.Any() ?? false) 
+            if (!hotelResult.IsSuccessful) 
             {
                 result.IsSuccessful = false;
-                result.Message = Constants.NoHotelsFoundError;
+                result.Message = hotelResult.Message;
                 return result;
             }
 
             var reponses = new List<HolidaySearchResponse>();
 
-            foreach(var hotel in matchingHotels!)
+            foreach(var hotel in hotelResult.SearchResults)
             {
                 reponses.AddRange(
-                    matchingFlights!.Where(flight => hotel.LocalAirports.Contains(flight.To))
+                    flightResult.SearchResults.Where(flight => hotel.LocalAirports.Contains(flight.To))
                     .Select(flight => new HolidaySearchResponse
                     {
                         HotelName = hotel.Name,

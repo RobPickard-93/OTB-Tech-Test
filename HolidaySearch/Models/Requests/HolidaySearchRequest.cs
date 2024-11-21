@@ -1,5 +1,4 @@
-﻿
-namespace HolidaySearch.Models
+﻿namespace HolidaySearch.Models.Requests
 {
     public class HolidaySearchRequest
     {

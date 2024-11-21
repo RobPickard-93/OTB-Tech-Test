@@ -1,4 +1,4 @@
-﻿namespace HolidaySearch.Models
+﻿namespace HolidaySearch.Models.Response
 {
     public class HolidaySearchResponse
     {

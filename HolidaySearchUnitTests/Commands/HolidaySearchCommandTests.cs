@@ -1,23 +1,25 @@
 ﻿using HolidaySearch;
 using HolidaySearch.Commands;
-using HolidaySearch.Interfaces;
+using HolidaySearch.Interfaces.Commands;
 using HolidaySearch.Models;
+using HolidaySearch.Models.Requests;
+using HolidaySearch.Models.Response;
 using Moq;
 
 namespace HolidaySearchUnitTests.Commands
 {
     public class HolidaySearchCommandTests
     {
-        private Mock<IFindFlightsCommand> _findFlightsCommandMock = new Mock<IFindFlightsCommand>(MockBehavior.Strict);
-        private Mock<IFindHotelsCommand> _findHotelsCommandMock = new Mock<IFindHotelsCommand>(MockBehavior.Strict);
+        private Mock<IFlightSearchCommand> _findFlightsCommandMock = new Mock<IFlightSearchCommand>(MockBehavior.Strict);
+        private Mock<IHotelSearchCommand> _findHotelsCommandMock = new Mock<IHotelSearchCommand>(MockBehavior.Strict);
         private IHolidaySearchCommand? _holidaySearchCommand;
 
         [SetUp]
         public void Setup()
         {
-            IEnumerable<Flight> flightSubjects = new List<Flight>
+            IEnumerable<FlightSearchResponse> flightSubjects = new List<FlightSearchResponse>
             {
-                 new Flight
+                 new FlightSearchResponse
                 {
                     Id = 1,
                     Airline = "Test Flight",
@@ -29,12 +31,17 @@ namespace HolidaySearchUnitTests.Commands
             };
 
             _findFlightsCommandMock
-                .Setup(m => m.Execute(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
-                .Returns(() => Task.FromResult(flightSubjects));
+                .Setup(m => m.Execute(It.IsAny<FlightSearchRequest>()))
+                .Returns(() => Task.FromResult(
+                    new Result<FlightSearchResponse>
+                    {
+                        IsSuccessful = true,
+                        SearchResults = flightSubjects 
+                    }));
 
-            IEnumerable<Hotel> hotelSubjects = new List<Hotel>
+            IEnumerable<HotelSearchResponse> hotelSubjects = new List<HotelSearchResponse>
             {
-                new Hotel
+                new HotelSearchResponse
                 {
                     Id = 1,
                     ArrivalDate = DateTimeOffset.Now.Date,
@@ -43,7 +50,7 @@ namespace HolidaySearchUnitTests.Commands
                     Nights = 7,
                     PricePerNight = 1000
                 },
-                new Hotel
+                new HotelSearchResponse
                 {
                     Id = 2,
                     ArrivalDate = DateTimeOffset.Now.Date,
@@ -55,8 +62,13 @@ namespace HolidaySearchUnitTests.Commands
             };
 
             _findHotelsCommandMock
-                .Setup(m => m.Execute(It.IsAny<IEnumerable<string>>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>()))
-                .Returns(() => Task.FromResult(hotelSubjects));
+                .Setup(m => m.Execute(It.IsAny<HotelSearchRequest>()))
+                .Returns(() => Task.FromResult(
+                    new Result<HotelSearchResponse>
+                    {
+                        IsSuccessful = true,
+                        SearchResults = hotelSubjects
+                    }));
 
 
             _holidaySearchCommand = new HolidaySearchCommand(_findHotelsCommandMock.Object, _findFlightsCommandMock.Object);
@@ -82,7 +94,7 @@ namespace HolidaySearchUnitTests.Commands
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(expectedSuccess.Equals(result.IsSuccessful));
+            Assert.That(expectedSuccess, Is.EqualTo(result.IsSuccessful));
             Assert.That(expectedResultCount, Is.EqualTo(result.SearchResults.Count()));
             Assert.That(expectedHotelId, Is.EqualTo(result.SearchResults.First().HotelId));
         }
@@ -106,53 +118,61 @@ namespace HolidaySearchUnitTests.Commands
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(expectedTotalPrice, Is.EqualTo(topResult.TotalPrice));
+            Assert.That(topResult.TotalPrice, Is.EqualTo(expectedTotalPrice));
         }
 
         [Test]
-        public async Task When_No_Flights_Found_Then_Returns_Error()
+        public async Task Given_Valid_HolidaySearchRequest_When_No_Flights_Found_Then_Returns_Error()
         {
             // Arrange
-            IEnumerable<Flight> subjects = [];
-            _findFlightsCommandMock
-                .Setup(m => m.Execute(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
-                .Returns(() => Task.FromResult(subjects));
-
+            var expectedSuccess = false;
+            var request = new HolidaySearchRequest();
             var expectedErrorMessage = Constants.NoFlightsFoundError;
-            var expectedSuccess = false;
-            var request = new HolidaySearchRequest();
+            var expectedSearchResultsCount = 0;
+
+            _findFlightsCommandMock
+                .Setup(m => m.Execute(It.IsAny<FlightSearchRequest>()))
+                .Returns(() => Task.FromResult(new Result<FlightSearchResponse>
+                {
+                    IsSuccessful = false,
+                    Message = expectedErrorMessage
+                }));
 
             // Act
             var result = await _holidaySearchCommand!.Execute(request);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(expectedSuccess, Is.EqualTo(result.IsSuccessful));
-            Assert.That(expectedErrorMessage, Is.EqualTo(result.Message));
-            Assert.That(result.SearchResults.Count(), Is.EqualTo(0));
+            Assert.That(result.IsSuccessful, Is.EqualTo(expectedSuccess));
+            Assert.That(result.Message, Is.EqualTo(expectedErrorMessage));
+            Assert.That(result.SearchResults.Count(), Is.EqualTo(expectedSearchResultsCount));
         }
 
         [Test]
-        public async Task When_No_Hotels_Found_Then_Returns_Error()
+        public async Task Given_Valid_HolidaySearchRequest_When_No_Hotels_Found_Then_Returns_Error()
         {
             // Arrange
-            IEnumerable<Hotel> subjects = [];
-            _findHotelsCommandMock
-                .Setup(m => m.Execute(It.IsAny<IEnumerable<string>>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>()))
-                .Returns(() => Task.FromResult(subjects));
-
-            var expectedErrorMessage = Constants.NoHotelsFoundError;
             var expectedSuccess = false;
             var request = new HolidaySearchRequest();
+            var expectedSearchResultsCount = 0;
+            var expectedErrorMessage = Constants.NoHotelsFoundError;
+
+            _findHotelsCommandMock
+                .Setup(m => m.Execute(It.IsAny<HotelSearchRequest>()))
+                .Returns(() => Task.FromResult(new Result<HotelSearchResponse>
+                {
+                    IsSuccessful = false,
+                    Message = expectedErrorMessage
+                }));
 
             // Act
             var result = await _holidaySearchCommand!.Execute(request);
 
             // Assert
             Assert.That(result, Is.Not.Null);
-            Assert.That(expectedSuccess, Is.EqualTo(result.IsSuccessful));
-            Assert.That(expectedErrorMessage, Is.EqualTo(result.Message));
-            Assert.That(result.SearchResults.Count(), Is.EqualTo(0));
+            Assert.That(result.IsSuccessful, Is.EqualTo(expectedSuccess));
+            Assert.That(result.Message, Is.EqualTo(expectedErrorMessage));
+            Assert.That(result.SearchResults.Count(), Is.EqualTo(expectedSearchResultsCount));
         }
     }
 }

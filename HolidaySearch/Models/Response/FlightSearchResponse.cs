@@ -1,6 +1,6 @@
-﻿namespace HolidaySearch.Models
+﻿namespace HolidaySearch.Models.Response
 {
-    public class Flight
+    public class FlightSearchResponse
     {
         public int Id { get; set; }
         public string Airline { get; set; } = string.Empty;
