@@ -48,7 +48,55 @@ namespace HolidaySearchTests.IntegrationTests
                             FlightPrice = 245,
                             HotelId = 9,
                             HotelName = "Nh Malaga",
-                            HotelPrice = 83 * 7
+                            HotelPrice = 581
+                        }
+                    ]
+                }
+            ),
+            new TestCaseData(
+                new HolidaySearchRequest
+                {
+                    DepartingFrom = "LGW",
+                    TravellingTo = "PMI",
+                    DepartureDate = new DateTimeOffset(2023, 06, 15, 0, 0, 0, TimeSpan.FromHours(1)),
+                    Duration = 10
+                },
+                new Result<HolidaySearchResponse> {
+                    IsSuccessful = true,
+                    SearchResults = [
+                        new HolidaySearchResponse
+                        {
+                            FightId = 6,
+                            DepartingFrom = "LGW",
+                            TravellingTo = "PMI",
+                            FlightPrice = 75,
+                            HotelId = 5,
+                            HotelName = "Sol Katmandu Park & Resort",
+                            HotelPrice = 600
+                        }
+                    ]
+                }
+            ),
+            new TestCaseData(
+                new HolidaySearchRequest
+                {
+                    DepartingFrom = "MAN",
+                    TravellingTo = "LPA",
+                    DepartureDate = new DateTimeOffset(2022, 11, 10, 0, 0, 0, TimeSpan.Zero),
+                    Duration = 14
+                },
+                new Result<HolidaySearchResponse> {
+                    IsSuccessful = true,
+                    SearchResults = [
+                        new HolidaySearchResponse
+                        {
+                            FightId = 7,
+                            DepartingFrom = "MAN",
+                            TravellingTo = "LPA",
+                            FlightPrice = 125,
+                            HotelId = 6,
+                            HotelName = "Club Maspalomas Suites and Spa",
+                            HotelPrice = 1050
                         }
                     ]
                 }
