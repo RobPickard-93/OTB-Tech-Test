@@ -19,9 +19,14 @@ namespace HolidaySearch.Commands
         {
             var result = new Result<FlightSearchResponse>();
 
-            var allFlights = await _flightRepository.GetFlights(request.From, request.To, request.DepartureDate);
+            var allFlights = await _flightRepository.GetFlights();
 
-            if(!allFlights.Any())
+            var matchingFlights = allFlights.Where(f =>
+                f.From == request.From &&
+                f.To == request.To &&
+                f.DepartureDate == request.DepartureDate);
+
+            if(!matchingFlights.Any())
             {
                 result.IsSuccessful = false;
                 result.Message = Constants.NoFlightsFoundError;
@@ -29,7 +34,7 @@ namespace HolidaySearch.Commands
             else
             {
                 result.IsSuccessful = true;
-                result.SearchResults = allFlights.Select(f => new FlightSearchResponse
+                result.SearchResults = matchingFlights.Select(f => new FlightSearchResponse
                 {
                     Id = f.Id,
                     Airline = f.Airline,

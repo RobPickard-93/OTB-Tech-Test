@@ -19,9 +19,15 @@ namespace HolidaySearch.Commands
         {
             var result = new Result<HotelSearchResponse>();
 
-            var allHotels = await _hotelRepository.GetHotels(request.LocalAirports, request.ArrivalDate, request.Duration);
+            var allHotels = await _hotelRepository.GetHotels();
 
-            if (!allHotels.Any())
+            var matchingHotels = allHotels.Where(h =>
+                h.Nights == request.Duration &&
+                h.LocalAirports.Any(la => request.LocalAirports.Contains(la)) &&
+                h.ArrivalDate == request.ArrivalDate
+            );
+
+            if (!matchingHotels.Any())
             {
                 result.IsSuccessful = false;
                 result.Message = Constants.NoHotelsFoundError;
@@ -29,7 +35,7 @@ namespace HolidaySearch.Commands
             else
             {
                 result.IsSuccessful = true;
-                result.SearchResults = allHotels.Select(h => new HotelSearchResponse
+                result.SearchResults = matchingHotels.Select(h => new HotelSearchResponse
                 {
                     Id = h.Id,
                     ArrivalDate = h.ArrivalDate,

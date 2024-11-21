@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HolidaySearch", "HolidaySearch.csproj", "{307EE2B1-A240-4A3B-9004-FBE20D1F54A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HolidaySearchUnitTests", "..\HolidaySearchUnitTests\HolidaySearchUnitTests.csproj", "{35B3FE4A-2778-42E8-9EB5-AB7264F8B43B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HolidaySearchTests", "..\HolidaySearchUnitTests\HolidaySearchTests.csproj", "{35B3FE4A-2778-42E8-9EB5-AB7264F8B43B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

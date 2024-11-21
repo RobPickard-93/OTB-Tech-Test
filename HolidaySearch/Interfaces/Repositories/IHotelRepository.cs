@@ -4,6 +4,6 @@ namespace HolidaySearch.Interfaces.Repositories
 {
     public interface IHotelRepository
     {
-        Task<IEnumerable<Hotel>> GetHotels(IEnumerable<string> localAirports, DateTimeOffset arrivalDate, int duration) => throw new NotImplementedException();
+        Task<IEnumerable<Hotel>> GetHotels() => throw new NotImplementedException();
     }
 }

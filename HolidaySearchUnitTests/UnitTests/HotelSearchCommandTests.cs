@@ -6,7 +6,7 @@ using HolidaySearch.Models.Entity;
 using HolidaySearch.Models.Requests;
 using Moq;
 
-namespace HolidaySearchUnitTests.Commands
+namespace HolidaySearchTests.UnitTests
 {
     public class HotelSearchCommandTests
     {
@@ -47,7 +47,7 @@ namespace HolidaySearchUnitTests.Commands
                 }
             ];
 
-            _hotelRepoMock.Setup(x => x.GetHotels(It.IsAny<IEnumerable<string>>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>()))
+            _hotelRepoMock.Setup(x => x.GetHotels())
                 .Returns(() => Task.FromResult(subjects));
 
             _hotelSearchCommand = new HotelSearchCommand(_hotelRepoMock.Object);
@@ -80,7 +80,7 @@ namespace HolidaySearchUnitTests.Commands
         {
             // Arrange
             IEnumerable<Hotel> subjects = Enumerable.Empty<Hotel>();
-            _hotelRepoMock.Setup(x => x.GetHotels(It.IsAny<IEnumerable<string>>(), It.IsAny<DateTimeOffset>(), It.IsAny<int>()))
+            _hotelRepoMock.Setup(x => x.GetHotels())
                 .Returns(() => Task.FromResult(subjects));
 
             var expectedSuccess = false;

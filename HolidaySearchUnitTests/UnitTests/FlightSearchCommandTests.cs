@@ -6,7 +6,7 @@ using HolidaySearch.Models.Entity;
 using HolidaySearch.Models.Requests;
 using Moq;
 
-namespace HolidaySearchUnitTests.Commands
+namespace HolidaySearchTests.UnitTests
 {
     public class FlightSearchCommandTests
     {
@@ -16,9 +16,9 @@ namespace HolidaySearchUnitTests.Commands
         [SetUp]
         public void Setup()
         {
-            IEnumerable<Flight> subjects = 
+            IEnumerable<Flight> subjects =
             [
-                new Flight 
+                new Flight
                 {
                     Id = 1,
                     Airline = "First Class Air",
@@ -47,7 +47,7 @@ namespace HolidaySearchUnitTests.Commands
                 }
             ];
 
-            _flightRepoMock.Setup(x => x.GetFlights(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
+            _flightRepoMock.Setup(x => x.GetFlights())
                 .Returns(() => Task.FromResult(subjects));
 
             _flightSearchCommand = new FlightSearchCommand(_flightRepoMock.Object);
@@ -80,7 +80,7 @@ namespace HolidaySearchUnitTests.Commands
         {
             // Arrange
             IEnumerable<Flight> subjects = Enumerable.Empty<Flight>();
-            _flightRepoMock.Setup(x => x.GetFlights(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DateTimeOffset>()))
+            _flightRepoMock.Setup(x => x.GetFlights())
                 .Returns(() => Task.FromResult(subjects));
 
             var expectedSuccess = false;

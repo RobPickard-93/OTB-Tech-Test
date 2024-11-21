@@ -6,7 +6,7 @@ using HolidaySearch.Models.Requests;
 using HolidaySearch.Models.Response;
 using Moq;
 
-namespace HolidaySearchUnitTests.Commands
+namespace HolidaySearchTests.UnitTests
 {
     public class HolidaySearchCommandTests
     {
@@ -36,7 +36,7 @@ namespace HolidaySearchUnitTests.Commands
                     new Result<FlightSearchResponse>
                     {
                         IsSuccessful = true,
-                        SearchResults = flightSubjects 
+                        SearchResults = flightSubjects
                     }));
 
             IEnumerable<HotelSearchResponse> hotelSubjects = new List<HotelSearchResponse>
