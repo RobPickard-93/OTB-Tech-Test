@@ -10,5 +10,3 @@
         public DateTimeOffset DepartureDate { get; set; }
     }
 }
-// ASSUMPTION - price is decimal, test data only holds whole numbers
-// ASSUMPTION - departure date holds offsets, this becomes important when BST could determine the difference between 11pm and midnight

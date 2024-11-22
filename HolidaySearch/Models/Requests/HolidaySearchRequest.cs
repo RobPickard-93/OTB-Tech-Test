@@ -7,6 +7,4 @@
         public DateTimeOffset DepartureDate { get; set; }
         public int Duration { get; set; }
     }
-
-    // ASSUMPTION - Duration is always going to be rounded up to the whole day
 }
